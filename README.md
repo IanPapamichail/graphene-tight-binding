@@ -1,4 +1,13 @@
-#Graphene Tight-Binding Simulation (Hexagonal Fragment)
+![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)
+![NumPy](https://img.shields.io/badge/NumPy-Scientific%20Computing-orange.svg)
+![Status](https://img.shields.io/badge/Status-Active%20Development-brightgreen)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Domain](https://img.shields.io/badge/Domain-Computational%20Physics-purple)
+![Model](https://img.shields.io/badge/Model-Tight--Binding-red)
+![Last Commit](https://img.shields.io/github/last-commit/IanPapamichail/graphene-tight-binding)
+![Repo Size](https://img.shields.io/github/repo-size/IanPapamichail/graphene-tight-binding)
+
+Graphene Tight-Binding Simulation (Hexagonal Fragment)
 
 This project implements a tight-binding model of a graphene hexagonal fragment (6-site ring) using Python and NumPy.
 
