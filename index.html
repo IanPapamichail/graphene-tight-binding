@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphene Tight-Binding Quantum Simulator</title>
+    <!-- Google Fonts for premium appearance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Inline styles or external stylesheet link -->
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="logo-area">
+            <span class="pulse-dot"></span>
+            <h1>Graphene Tight-Binding Simulator</h1>
+            <span class="badge">Hexagonal 6-Site Ring</span>
+        </div>
+        <p class="subtitle">Quantum mechanical simulation of nearest-neighbor electronic hopping and on-site orbital energies.</p>
+    </header>
+
+    <main class="app-container">
+        <!-- Controls & Parameters Sidebar -->
+        <section class="card controls-panel" id="controls">
+            <h2>Simulation Controls</h2>
+            
+            <div class="control-group">
+                <h3>Select Preset Configuration</h3>
+                <div class="presets-grid">
+                    <button class="btn active" onclick="loadPreset('ideal')">Ideal Graphene</button>
+                    <button class="btn" onclick="loadPreset('alternating')">BN Alternation</button>
+                    <button class="btn" onclick="loadPreset('doped')">Single Defect</button>
+                    <button class="btn" onclick="loadPreset('dimers')">Decoupled Dimers</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Global Hopping (t)</h3>
+                <div class="slider-wrapper">
+                    <label for="t-slider">Hopping Parameter <span>(t)</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="t-slider" min="-3" max="3" step="0.1" value="1.0" oninput="updateParam('t', this.value)">
+                        <span class="value-display" id="t-value">1.0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>On-Site Energies (ε)</h3>
+                <p class="caption">Modify individual carbon atom on-site energies (orbital potentials).</p>
+                <div class="sliders-list" id="epsilon-sliders">
+                    <!-- Sliders for epsilon_0 to epsilon_5 will be dynamically rendered or static -->
+                    <div class="slider-wrapper">
+                        <label for="eps0-slider"><span class="atom-dot" style="background: var(--node-0)"></span> Atom 0</label>
+                        <div class="slider-container">
+                            <input type="range" id="eps0-slider" min="-3" max="3" step="0.1" value="0.0" oninput="updateParam('eps', this.value, 0)">
+                            <span class="value-display" id="eps0-value">0.0</span>
+                        </div>
+                    </div>
+                    <div class="slider-wrapper">
+                        <label for="eps1-slider"><span class="atom-dot" style="background: var(--node-1)"></span> Atom 1</label>
+                        <div class="slider-container">
+                            <input type="range" id="eps1-slider" min="-3" max="3" step="0.1" value="0.0" oninput="updateParam('eps', this.value, 1)">
+                            <span class="value-display" id="eps1-value">0.0</span>
+                        </div>
+                    </div>
+                    <div class="slider-wrapper">
+                        <label for="eps2-slider"><span class="atom-dot" style="background: var(--node-2)"></span> Atom 2</label>
+                        <div class="slider-container">
+                            <input type="range" id="eps2-slider" min="-3" max="3" step="0.1" value="0.0" oninput="updateParam('eps', this.value, 2)">
+                            <span class="value-display" id="eps2-value">0.0</span>
+                        </div>
+                    </div>
+                    <div class="slider-wrapper">
+                        <label for="eps3-slider"><span class="atom-dot" style="background: var(--node-3)"></span> Atom 3</label>
+                        <div class="slider-container">
+                            <input type="range" id="eps3-slider" min="-3" max="3" step="0.1" value="0.0" oninput="updateParam('eps', this.value, 3)">
+                            <span class="value-display" id="eps3-value">0.0</span>
+                        </div>
+                    </div>
+                    <div class="slider-wrapper">
+                        <label for="eps4-slider"><span class="atom-dot" style="background: var(--node-4)"></span> Atom 4</label>
+                        <div class="slider-container">
+                            <input type="range" id="eps4-slider" min="-3" max="3" step="0.1" value="0.0" oninput="updateParam('eps', this.value, 4)">
+                            <span class="value-display" id="eps4-value">0.0</span>
+                        </div>
+                    </div>
+                    <div class="slider-wrapper">
+                        <label for="eps5-slider"><span class="atom-dot" style="background: var(--node-5)"></span> Atom 5</label>
+                        <div class="slider-container">
+                            <input type="range" id="eps5-slider" min="-3" max="3" step="0.1" value="0.0" oninput="updateParam('eps', this.value, 5)">
+                            <span class="value-display" id="eps5-value">0.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Animation Settings</h3>
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" id="animate-phase" checked onchange="toggleAnimation(this.checked)">
+                        <span class="slider round"></span>
+                    </label>
+                    <span>Animate Quantum Phase factor <code class="math">e<sup>-iEt/ħ</sup></code></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visualization Panel -->
+        <section class="visualization-panel">
+            <!-- Hexagonal lattice interactive display -->
+            <div class="card canvas-card">
+                <div class="card-header">
+                    <h2>Real-Space Wavefunction</h2>
+                    <span class="info-tip">Select a state on the right to view its wave pattern. Hover/click atoms to adjust potential.</span>
+                </div>
+                <div class="visualizer-wrapper">
+                    <!-- Interactive SVG -->
+                    <svg id="hexagon-svg" viewBox="-200 -200 400 400" width="100%" height="100%">
+                        <defs>
+                            <radialGradient id="node-glow" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="var(--glow-color)" stop-opacity="0.6" />
+                                <stop offset="100%" stop-color="var(--glow-color)" stop-opacity="0" />
+                            </radialGradient>
+                            <linearGradient id="bond-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="var(--accent-teal)" />
+                                <stop offset="100%" stop-color="var(--accent-purple)" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Bonds rendered as lines -->
+                        <g id="bonds-group"></g>
+                        <!-- Atoms rendered as groups of circles/texts -->
+                        <g id="atoms-group"></g>
+                    </svg>
+
+                    <!-- Wavefunction Phase Indicator Legends -->
+                    <div class="legend-box">
+                        <div class="legend-item">
+                            <span class="legend-color cyan"></span>
+                            <span>Positive Phase (+ amplitude)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color gold"></span>
+                            <span>Negative Phase (- amplitude)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-circle"></span>
+                            <span>Size proportional to Probability <code class="math">|ψ|<sup>2</sup></code></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vertical Energy ladder -->
+            <div class="card ladder-card">
+                <h2>Energy Spectrum Ladder</h2>
+                <p class="caption">Double degenerate states are split horizontally for clarity.</p>
+                <div class="ladder-wrapper">
+                    <div class="y-axis-labels">
+                        <span>+2.0 t</span>
+                        <span>0.0</span>
+                        <span>-2.0 t</span>
+                    </div>
+                    <div class="ladder-canvas-container">
+                        <div class="ladder-gridline" style="bottom: 83.3%"><span>+2.0</span></div>
+                        <div class="ladder-gridline" style="bottom: 66.6%"><span>+1.0</span></div>
+                        <div class="ladder-gridline" style="bottom: 50.0%"><span>0.0</span></div>
+                        <div class="ladder-gridline" style="bottom: 33.3%"><span>-1.0</span></div>
+                        <div class="ladder-gridline" style="bottom: 16.6%"><span>-2.0</span></div>
+                        
+                        <div class="states-container" id="states-ladder">
+                            <!-- Dynamically generated state nodes on the ladder -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer-grids">
+        <!-- Hamiltonian Matrix Visualizer -->
+        <section class="card matrix-card">
+            <h2>Hamiltonian Matrix: <code class="math">H</code></h2>
+            <p class="caption">Real-time tight-binding matrix elements. <code class="math">H<sub>i,i</sub> = ε<sub>i</sub></code> and <code class="math">H<sub>i,j</sub> = -t</code></p>
+            <div class="matrix-brackets">
+                <div class="matrix-grid" id="matrix-elements">
+                    <!-- Dynamically populated 6x6 matrix -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Wavefunction Components Details Table -->
+        <section class="card stats-card">
+            <h2>Eigenstate Wavefunction Analysis</h2>
+            <div class="state-meta" id="selected-state-meta">
+                <span class="state-label">Selected State: <strong id="state-index">State 0</strong></span>
+                <span class="state-energy">Energy E = <strong id="state-energy-val">-2.0000</strong> eV</span>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atom</th>
+                            <th>On-Site Energy (ε)</th>
+                            <th>Amplitude (ψ<sub>i</sub>)</th>
+                            <th>Probability (|ψ<sub>i</sub>|<sup>2</sup>)</th>
+                            <th>Sign / Phase</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eigenstate-table-body">
+                        <!-- Dynamically filled with atom records -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </footer>
+
+    <!-- Description Panel -->
+    <section class="card description-card">
+        <h2>Quantum Mechanics of the Graphene 6-Site Ring</h2>
+        <div class="description-content">
+            <p>
+                In the <strong>Tight-Binding approximation</strong>, we model the graphene lattice by assuming electrons are highly localized around carbon nuclei, hopping only to nearest-neighbor atoms. Each carbon atom contributes one electron from its <strong>p<sub>z</sub> orbital</strong> perpendicular to the graphene plane.
+            </p>
+            <p>
+                The Hamiltonian matrix <code class="math">H</code> holds the orbital interaction energy. The diagonal entries <code class="math">H<sub>i,i</sub></code> represent the electrostatic potential energy (on-site energy <code class="math">ε<sub>i</sub></code>) at each atom. The off-diagonal entries <code class="math">H<sub>i,j</sub></code> represent the overlap integral or kinetic energy cost of tunneling between neighbor atoms (hopping parameter <code class="math">-t</code>).
+            </p>
+            <p>
+                Solving the time-independent Schrödinger Equation <code class="math">H|ψ⟩ = E|ψ⟩</code> gives the allowed energy eigenvalues and corresponding eigenstate wavefunctions.
+            </p>
+            <ul>
+                <li><strong>Ideal Graphene:</strong> When all <code class="math">ε<sub>i</sub> = 0</code>, we get energies <code class="math">[-2t, -1t, -1t, 1t, 1t, 2t]</code>. The degeneracies at <code class="math">±1t</code> are protected by the C<sub>6v</sub> symmetry of the ring.</li>
+                <li><strong>Boron Nitride Alternation:</strong> Alternating the on-site energies breaks the inversion and sublattice symmetry, opening up an energy gap between valence and conduction bands, representing a transition from a metal to a wide-gap insulator.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- JavaScript simulation logic -->
+    <script src="app.js"></script>
+</body>
+</html>
