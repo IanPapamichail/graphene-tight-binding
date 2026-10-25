@@ -1,3 +1,8 @@
+## Six-site Tight Binding Graphene Photoelectric interactions
+
+
+
+
 ![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)
 ![NumPy](https://img.shields.io/badge/NumPy-Scientific%20Computing-orange.svg)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-brightgreen)
