@@ -1,4 +1,4 @@
-## Six-site Tight Binding Graphene Photoelectric interactions
+## Six-site Graphene Photoelectric interactions simulation
 
 
 
